@@ -39,7 +39,7 @@ async function startFunction() {
     while (true) {
       numrandom = Math.floor((Math.random() * range) + 1);
       if (bingoNumbers.indexOf(numrandom) < 0) {
-        responsiveVoice.speak(`${numrandom}`, 'Thai Female', {pitch: 2, rate: 1.5});
+        responsiveVoice.speak(`${numrandom}`, 'Thai Female');
         bingoNumbers.push(numrandom);
         break;
       }
@@ -207,7 +207,7 @@ onSnapshot(game, async doc => {
   const msg = data.check.split('|');
   if (start == 1) {
     if (checkClient(msg[0], msg[1])) {
-      responsiveVoice.speak('บิงโก้', 'Thai Female', {pitch: 2, rate: 1.5});
+      responsiveVoice.speak('บิงโก้', 'Thai Female');
       await setDoc(game, {
         'BINGO': msg[0]
       }, {merge: true});

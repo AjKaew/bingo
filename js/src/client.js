@@ -163,11 +163,14 @@ onSnapshot(game, async doc => {
           htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
         }
         else {
-          htmlText += `<td id="${bingoGenerate[i]}" onClick="checkBingo('${bingoGenerate[i]}')">${bingoGenerate[i]}</td>`;
+          htmlText += `<td id="${bingoGenerate[i]}" class="clickable">${bingoGenerate[i]}</td>`;
         }
         if ((i + 1) % 5 == 0) {
           htmlText += '</tr>';
         }
+      }
+      for(let num of document.querySelectorAll('.clickable')) {
+        num.addEventListener('click', checkBingo(num.id));
       }
       document.getElementById('bingo_card').innerHTML = htmlText;
     }
