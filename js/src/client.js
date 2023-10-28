@@ -29,28 +29,17 @@ function generateNumbers() {
     let numrandom = Math.floor((Math.random() * range) + 1);
     if (bingoGenerate.indexOf(numrandom) < 0) {
       bingoGenerate.push(numrandom);
-    }
-    if (bingoGenerate.length == 25) {
-      bingoGenerate.sort(function (a, b) {
-        return a - b;
-      });
-      break;
+      if (bingoGenerate.length == 25) {
+        bingoGenerate.sort(function (a, b) {
+          return a - b;
+        });
+        break;
+      }
     }
   }
 
-  let arr = [];
-  let arr2 = [];
-  for (let i = 0; i < bingoGenerate.length; i++) {
-    if ((i + 1) % 5 == 0) {
-      bingoCheck.push(arr);
-    }
-    if (i % 5 == 0) {
-      arr = [];
-      arr.push(bingoGenerate[i]);
-    }
-    else {
-      arr.push(bingoGenerate[i]);
-    }
+  for (let i = 0; i < bingoGenerate.length; i+=5) {
+    bingoCheck.push(arr.slice(i, i+5));
   }
   return `${playername}|${bingoGenerate}`;
 }
@@ -136,7 +125,6 @@ async function checkBingo(numberBingo) {
       await setDoc(game, {
         'check': `${playername}|${clickNumbers}`
       });
-      // db.ref(`${branch}/check`).set(playername + "|" + clickNumbers);
     }
   }
 }
@@ -144,105 +132,96 @@ async function checkBingo(numberBingo) {
 onSnapshot(game, async doc => {
   const data = doc.data();
   if (key == data.secret) {
-    playername = prompt('Please enter your name', '');
-    document.getElementById('status_connect')
-      .innerHTML = '<span id="online">Online</span>';
-    document.getElementById('player_name').innerHTML = playername;
+    if(!playername) {
+      if(start == 0) {
+        playername = prompt('Please enter your name', '');
+        if(!playername) {
+          window.alert('กรุณาสแกน QR เพื่อเข้าเล่นใหม่');
+          close();
+        }  
+        document.getElementById('status_connect')
+          .innerHTML = '<span id="online">Online</span>';
+        document.getElementById('player_name').innerHTML = playername;
 
-    bingoPlayer = generateNumbers();
-    if (start == 0 && bingoPlayer != '') {
-      await setDoc(game, {
-        'client': bingoPlayer
-      });
-      // db.ref(`${branch}/client`).set(bingoPlayer);
+        bingoPlayer = generateNumbers();
+        await setDoc(game, {
+          'client': bingoPlayer
+        });
 
-      let htmlText = '';
-      for (let i = 0; i < bingoGenerate.length; i++) {
-        if (i % 5 == 0) {
-          htmlText += '<tr>';
+        let htmlText = '';
+        for (let i = 0; i < bingoGenerate.length; i++) {
+          if (i % 5 == 0) {
+            htmlText += '<tr>';
+          }
+          if (i == 12) {
+            htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
+          }
+          else {
+            htmlText += `<td id="${bingoGenerate[i]}" onClick="checkBingo('${bingoGenerate[i]}')">${bingoGenerate[i]}</td>`;
+          }
+          if ((i + 1) % 5 == 0) {
+            htmlText += '</tr>';
+          }
         }
-        if (i == 12) {
-          htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
-        }
-        else {
-          htmlText += `<td id="${bingoGenerate[i]}" onClick="checkBingo('${bingoGenerate[i]}')">${bingoGenerate[i]}</td>`;
-        }
-        if ((i + 1) % 5 == 0) {
-          htmlText += '</tr>';
-        }
+        document.getElementById('bingo_card').innerHTML = htmlText;
       }
-      document.getElementById('bingo_card').innerHTML = htmlText;
+      else {
+        window.alert('ขออภัย เกมเริ่มแล้ว กรุณารอรอบถัดไป');
+        close();
+      }
+    }
+    if (data.start) {
+      start = 1;
+      document.getElementById('bingo_card').style.display = 'table';
+      document.getElementById('checkNumber').innerHTML = '';
     }
     else {
-      window.alert('ขออภัย เกมเริ่มแล้ว กรุณารอรอบถัดไป');
+      document.getElementById('checkNumber').innerHTML = `Wait ${data.time} sec.`;
     }
+    if (start == 1) {
+      bingoNumbers = data.pop;
+      let showNumberCheck = '';
+      for (let i = 0; i < bingoNumbers.length; i++) {
+        if ((i + 1) % 10 === 0) {
+          if (i == 0) {
+            showNumberCheck += bingoNumbers[i];
+          }
+          else if (i == (bingoNumbers.length - 1)) {
+            showNumberCheck += ` , <span id="numberSize">${bingoNumbers[i]}</span><br>`;
+          }
+          else {
+            showNumberCheck += ` , ${bingoNumbers[i]}<br>`;
+          }
+        }
+        else {
+          if (i == 0) {
+            showNumberCheck += bingoNumbers[i];
+          }
+          else if (i == (bingoNumbers.length - 1)) {
+            showNumberCheck += ' , <span id="numberSize">' + bingoNumbers[i] + '</span>';
+          }
+          else {
+            showNumberCheck += ' , ' + bingoNumbers[i];
+          }
+        }
+      }
+      document.getElementById('checkNumber').innerHTML = showNumberCheck;
+      const msg = data.BINGO;
+      if (playername == msg) {
+        document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
+      }
+      else {
+        document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${msg} is the winner.</span>`;
+      }
+      start = 2;
+    }
+
   }
   else {
     document.getElementById('bingo_card').style.display = 'none';
     document.getElementById('checkNumber').style.display = 'none';
     window.alert('เกมรอบนี้สิ้นสุดแล้ว กรุณาสแกน QR เพื่อเข้าเล่นใหม่');
     start = 0;
-    return;
-  }
-
-  if (playername.trim() != null && playername.trim().length != 0) {
-    // db.ref(`${branch}/time`).on('value', function (snapshot) {
-      if (start == 0) {
-        document.getElementById('checkNumber').innerHTML = `Wait ${data.time} sec.`;
-      }
-    // });
-    // db.ref(`${branch}/start`).on('value', function (snapshot) {
-      if (data.start) {
-        start = 1;
-        document.getElementById('bingo_card').style.display = 'table';
-        document.getElementById('checkNumber').innerHTML = '';
-      }
-    // });
-    // db.ref(`${branch}/pop`).on('value', function (snapshot) {
-      if (start == 1) {
-        bingoNumbers = data.pop;
-        let showNumberCheck = '';
-        for (let i = 0; i < bingoNumbers.length; i++) {
-          if ((i + 1) % 10 === 0) {
-            if (i == 0) {
-              showNumberCheck += bingoNumbers[i];
-            }
-            else if (i == (bingoNumbers.length - 1)) {
-              showNumberCheck += ` , <span id="numberSize">${bingoNumbers[i]}</span><br>`;
-            }
-            else {
-              showNumberCheck += ` , ${bingoNumbers[i]}<br>`;
-            }
-          }
-          else {
-            if (i == 0) {
-              showNumberCheck += bingoNumbers[i];
-            }
-            else if (i == (bingoNumbers.length - 1)) {
-              showNumberCheck += ' , <span id="numberSize">' + bingoNumbers[i] + '</span>';
-            }
-            else {
-              showNumberCheck += ' , ' + bingoNumbers[i];
-            }
-          }
-        }
-        document.getElementById('checkNumber').innerHTML = showNumberCheck;
-      }
-    // });
-    // db.ref(`${branch}/BINGO`).on('value', function (snapshot) {
-      const msg = data.BINGO;
-      if (start == 1) {
-        if (playername == msg) {
-          document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
-        }
-        else {
-          document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${msg} is winner.</span>`;
-        }
-        start = 2;
-      }
-    // });
-  }
-  else {
-    document.getElementById('checkNumber').innerHTML = 'Input name invalid, <a href="javascript:location.reload()">Try again</a>.';
+    close();
   }
 });
