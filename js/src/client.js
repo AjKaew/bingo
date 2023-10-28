@@ -152,9 +152,9 @@ onSnapshot(game, async doc => {
       bingoPlayer = generateNumbers();
       console.log(bingoPlayer);
       data.clients.push(bingoPlayer)
-      await setDoc(game, {
-        'clients': data.clients
-      }, {merge: true});
+      // await setDoc(game, {
+      //   'clients': data.clients
+      // }, {merge: true});
 
       let htmlText = '';
       for (let i = 0; i < bingoGenerate.length; i++) {
