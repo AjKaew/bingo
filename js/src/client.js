@@ -125,7 +125,7 @@ async function checkBingo(numberBingo) {
     if (checkClientBingo()) {
       await setDoc(game, {
         'check': `${playername}|${clickNumbers}`
-      });
+      }, {merge: true});
     }
   }
 }
@@ -144,14 +144,14 @@ onSnapshot(game, async doc => {
       }
       else {
         window.alert('ขออภัย เกมเริ่มแล้ว กรุณารอรอบถัดไป');
-        close();
+        history.back();
       }
     }
     if(start == 0) {
       bingoPlayer = generateNumbers();
       await setDoc(game, {
         'clients': data.clients.push(bingoPlayer)
-      });
+      }, {merge: true});
 
       let htmlText = '';
       for (let i = 0; i < bingoGenerate.length; i++) {
@@ -220,7 +220,6 @@ onSnapshot(game, async doc => {
     document.getElementById('bingo_card').style.display = 'none';
     document.getElementById('checkNumber').style.display = 'none';
     window.alert('เกมรอบนี้สิ้นสุดแล้ว กรุณาสแกน QR เพื่อเข้าเล่นใหม่');
-    start = 0;
-    close();
+    history.back();
   }
 });

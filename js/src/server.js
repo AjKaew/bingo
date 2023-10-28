@@ -46,7 +46,7 @@ async function startFunction() {
     }
     await setDoc(game, {
       'pop': bingoNumbers
-    });
+    }, {merge: true});
 
     let numberRandom = '';
     for (let i = 0; i < bingoNumbers.length; i++) {
@@ -68,7 +68,7 @@ async function serverStartFunction() {
       document.getElementById('countdown').innerHTML = `( wait ${time} sec. )`;
       await setDoc(game, {
         'time': time--
-      });
+      }, {merge: true});
     }
   }
   else {
@@ -79,7 +79,7 @@ async function serverStartFunction() {
     document.getElementById('countdown').innerHTML = '';
     await setDoc(game, {
       'start': true
-    });
+    }, {merge: true});
   }
 }
 
@@ -162,7 +162,7 @@ await setDoc(game, {
   'check': '|',
   'start': false,
   'BINGO': '',
-  'pop': '',
+  'pop': [],
   'time': time
 });
 new QRious({
@@ -210,7 +210,7 @@ onSnapshot(game, async doc => {
       responsiveVoice.speak('บิงโก้', 'Thai Female', {pitch: 2, rate: 1.5});
       await setDoc(game, {
         'BINGO': msg[0]
-      });
+      }, {merge: true});
       document.getElementById('nlast').innerHTML = msg[0];
       stopFunction();
     }
