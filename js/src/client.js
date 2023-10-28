@@ -147,6 +147,7 @@ onSnapshot(game, async doc => {
         history.back();
       }
     }
+    console.log(start);
     if(start == 0) {
       bingoPlayer = generateNumbers();
       await setDoc(game, {
