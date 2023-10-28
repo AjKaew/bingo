@@ -148,7 +148,7 @@ onSnapshot(game, async doc => {
         history.back();
       }
     }
-    if(start == 0) {
+    if(bingoGenerate.length == 0) {
       data.clients.push(generateNumbers());
       await setDoc(game, {
         'clients': data.clients
