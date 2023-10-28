@@ -179,41 +179,32 @@ if (start == 0) {
 
 onSnapshot(game, async doc => {
   const data = doc.data();
-  let msg = data.client.split('|');
   if (start == 0) {
-    if (msg[0] != '' && client.indexOf(msg[0]) < 0) {
+    if(data.clients.length > client.length) {
       clearInterval(serverStartCountdown);
       time = wait;
       serverStartFunction();
       serverStartCountdown = setInterval(serverStartFunction, 1000);
-      client.push(msg[0]);
-      document.getElementById('displays').style.display = 'block';
-      document.getElementById('nplayer')
-        .innerHTML = `${client.length} Player` + (client.length > 1 ? 's' : '');
-
-      let arr_client = msg[1].split(',');
-      let arr = [];
-      let bingoClient = [];
-      for (let i = 0; i < arr_client.length; i++) {
-        if ((i + 1) % 5 == 0) {
-          bingoClient.push(arr);
+      for(let i = client.length; i < data.clients.length; i++) {
+        const msg = data.client.split('|');
+        const arr = msg[1].split(',');
+        const bingoClient = [];
+        client.push(msg[0]);
+        for (let i = 0; i < arr.length; i+=5) {
+          bingoClient.push(arr.slice(i, i+5));
         }
-        if (i % 5 == 0) {
-          arr = [];
-          arr.push(arr_client[i]);
-        }
-        else {
-          arr.push(arr_client[i]);
-        }
+        bingoClients.push(bingoClient);
       }
-      bingoClients.push(bingoClient);
       if (client.length >= playerMax) {
         time = 0;
         await serverStartFunction();
       }
+      document.getElementById('displays').style.display = 'block';
+      document.getElementById('nplayer')
+        .innerHTML = `${client.length} Player` + (client.length > 1 ? 's' : '');
     }
   }
-  msg = data.check.split('|');
+  const msg = data.check.split('|');
   if (start == 1) {
     if (checkClient(msg[0], msg[1])) {
       responsiveVoice.speak('บิงโก้', 'Thai Female', {pitch: 2, rate: 1.5});
