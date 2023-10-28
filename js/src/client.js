@@ -23,7 +23,6 @@ let bingoNumbers = [];
 let clickNumbers = [];
 let bingoGenerate = [];
 let bingoCheck = [];
-let bingoPlayer;
 
 function generateNumbers() {
   while (true) {
@@ -150,8 +149,7 @@ onSnapshot(game, async doc => {
       }
     }
     if(start == 0) {
-      bingoPlayer = generateNumbers();
-      data.clients.push(bingoPlayer)
+      data.clients.push(generateNumbers());
       await setDoc(game, {
         'clients': data.clients
       }, {merge: true});
