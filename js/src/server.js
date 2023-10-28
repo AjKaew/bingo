@@ -158,7 +158,7 @@ function checkClient(id, msgStr) {
 
 await setDoc(game, {
   'secret': secretKey,
-  'client': '|',
+  'clients': [],
   'check': '|',
   'start': false,
   'BINGO': '',
