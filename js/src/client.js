@@ -169,10 +169,10 @@ onSnapshot(game, async doc => {
           htmlText += '</tr>';
         }
       }
+      document.getElementById('bingo_card').innerHTML = htmlText;
       for(let num of document.querySelectorAll('.clickable')) {
         num.addEventListener('click', checkBingo(num.id));
       }
-      document.getElementById('bingo_card').innerHTML = htmlText;
     }
     if (data.start) {
       start = 1;
