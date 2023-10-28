@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://code.responsivevoice.org/responsivevoice.js?key=mtzOTIKY"></script>
-  <title>CIBA Bingo</title>
+  <title>IS Bingo</title>
 
   <style>
     body {
@@ -66,7 +65,7 @@
     [<span id="status_connect"><span id="offline">Offline</span></span>]
   </p>
   <p>
-    <img id="logo" src="img/CIBA.png">
+    <img id="logo" src="img/logo.jpg">
   </p>
   BINGO GAME
   <div id="win"></div>
@@ -76,12 +75,9 @@
   <div id="checkNumber">Wait...</div>
 
   <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
+    import { initializeApp } from "firebase/app";
+    import { getFirestore, doc, setDoc, onSnapshot } from "firebase/firestore";
+
     const firebaseConfig = {
       apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
       authDomain: "is-bingo.firebaseapp.com",
@@ -90,19 +86,15 @@
       messagingSenderId: "760850828545",
       appId: "1:760850828545:web:fd731405f3891823cd1f00"
     };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-  </script>
-  <script>
+    
     const range = 50;
     const params = new URLSearchParams(location.search);
     const branch = params.get('branch');
     const key = params.get('key');
-
-    let db = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const game = doc(getFirestore(app), 'game', branch);
+    
     let playername;
-
     let start = 0;
     let bingoNumbers = [];
     let clickNumbers = [];
@@ -211,20 +203,24 @@
       return status;
     }
 
-    function checkBingo(numberBingo) {
+    async function checkBingo(numberBingo) {
       numberBingo = +numberBingo;
       if (clickNumbers.indexOf(numberBingo) == -1 &&
         bingoNumbers.indexOf(numberBingo) != -1 && start != 2) {
         clickNumbers.push(numberBingo);
         document.getElementById(numberBingo).style.backgroundColor = 'red';
         if (checkClientBingo()) {
-          db.ref(`${branch}/check`).set(playername + "|" + clickNumbers);
+          await setDoc(game, {
+            'check': `${playername}|${clickNumbers}`
+          });
+          // db.ref(`${branch}/check`).set(playername + "|" + clickNumbers);
         }
       }
     }
 
-    db.ref(`${branch}/secret`).on('value', function (snapshot) {
-      if (key == snapshot.val()) {
+    onSnapshot(game, async doc => {
+      const data = doc.data();
+      if (key == data.secret) {
         playername = prompt('Please enter your name', '');
         document.getElementById('status_connect')
           .innerHTML = '<span id="online">Online</span>';
@@ -232,7 +228,10 @@
 
         bingoPlayer = generateNumbers();
         if (start == 0 && bingoPlayer != '') {
-          db.ref(`${branch}/client`).set(bingoPlayer);
+          await setDoc(game, {
+            'client': bingoPlayer
+          });
+          // db.ref(`${branch}/client`).set(bingoPlayer);
 
           let htmlText = '';
           for (let i = 0; i < bingoGenerate.length; i++) {
@@ -240,7 +239,7 @@
               htmlText += '<tr>';
             }
             if (i == 12) {
-              htmlText += `<td id="${bingoGenerate[i]}"><img src="img/CIBA.png" style="text-align:center;vertical-align:middle;"></td>`;
+              htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
             }
             else {
               htmlText += `<td id="${bingoGenerate[i]}" onClick="checkBingo('${bingoGenerate[i]}')">${bingoGenerate[i]}</td>`;
@@ -264,21 +263,21 @@
       }
 
       if (playername.trim() != null && playername.trim().length != 0) {
-        db.ref(`${branch}/time`).on('value', function (snapshot) {
+        // db.ref(`${branch}/time`).on('value', function (snapshot) {
           if (start == 0) {
-            document.getElementById('checkNumber').innerHTML = `Wait ${snapshot.val()} sec.`;
+            document.getElementById('checkNumber').innerHTML = `Wait ${data.time} sec.`;
           }
-        });
-        db.ref(`${branch}/start`).on('value', function (snapshot) {
-          if (snapshot.val()) {
+        // });
+        // db.ref(`${branch}/start`).on('value', function (snapshot) {
+          if (data.start) {
             start = 1;
             document.getElementById('bingo_card').style.display = 'table';
             document.getElementById('checkNumber').innerHTML = '';
           }
-        });
-        db.ref(`${branch}/pop`).on('value', function (snapshot) {
+        // });
+        // db.ref(`${branch}/pop`).on('value', function (snapshot) {
           if (start == 1) {
-            bingoNumbers = snapshot.val();
+            bingoNumbers = data.pop;
             let showNumberCheck = '';
             for (let i = 0; i < bingoNumbers.length; i++) {
               if ((i + 1) % 10 === 0) {
@@ -306,9 +305,9 @@
             }
             document.getElementById('checkNumber').innerHTML = showNumberCheck;
           }
-        });
-        db.ref(`${branch}/BINGO`).on('value', function (snapshot) {
-          let msg = snapshot.val();
+        // });
+        // db.ref(`${branch}/BINGO`).on('value', function (snapshot) {
+          const msg = data.BINGO;
           if (start == 1) {
             if (playername == msg) {
               document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
@@ -318,7 +317,7 @@
             }
             start = 2;
           }
-        });
+        // });
       }
       else {
         document.getElementById('checkNumber').innerHTML = 'Input name invalid, <a href="javascript:location.reload()">Try again</a>.';

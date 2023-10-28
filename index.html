@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore-compat.js"></script>
   <script src="https://code.responsivevoice.org/responsivevoice.js?key=DMU5go3z"></script>
   <script src="js/qrious.min.js"></script>
   <title>IS Bingo</title>
@@ -73,12 +71,9 @@
     <canvas id="qrcode-img"></canvas>
   </div>
   <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
+    import { initializeApp } from "firebase/app";
+    import { getFirestore, doc, setDoc, onSnapshot } from "firebase/firestore";
+
     const firebaseConfig = {
       apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
       authDomain: "is-bingo.firebaseapp.com",
@@ -87,19 +82,17 @@
       messagingSenderId: "760850828545",
       appId: "1:760850828545:web:fd731405f3891823cd1f00"
     };
-  
-    // Initialize Firebase
+
+    const branch = new URLSearchParams(location.search).get('branch');
     const app = initializeApp(firebaseConfig);
-  </script>
-  <script>
+    const game = doc(getFirestore(app), 'game', branch);
+
     const wait = 20;
     const playerMax = 100;
     const timespeed = 5000;
     const range = 50;
     const secretKey = Math.round(Math.random() * 1e15);
-    const branch = new URLSearchParams(location.search).get('branch');
 
-    let db = firebase.database();
     let time = wait;
     let start = 0;
     let client = [];
@@ -113,7 +106,7 @@
       clearInterval(serverStartBingo);
     }
 
-    function startFunction() {
+    async function startFunction() {
       if (start == 1 && time == 0 && bingoNumbers.length < range) {
         let numrandom;
         while (true) {
@@ -124,7 +117,10 @@
             break;
           }
         }
-        db.ref(`game/${branch}/pop`).set(bingoNumbers);
+        await setDoc(game, {
+          'pop': bingoNumbers
+        });
+        // db.ref(`game/${branch}/pop`).set(bingoNumbers);
 
         let numberRandom = '';
         for (let i = 0; i < bingoNumbers.length; i++) {
@@ -140,12 +136,15 @@
       }
     }
 
-    function serverStartFunction() {
+    async function serverStartFunction() {
       if (time > 0) {
         if (client.length > 0) {
           document.getElementById('countdown').innerHTML = `( wait ${time} sec. )`;
-          db.ref(`${branch}/time`).set(time);
-          time--;
+          await setDoc(game, {
+            'time': time--
+          });
+          // db.ref(`${branch}/time`).set(time);
+          // time--;
         }
       }
       else {
@@ -154,7 +153,10 @@
         serverStartBingo = setInterval(startFunction, timespeed);
         document.getElementById('qrcode').style.display = 'none';
         document.getElementById('countdown').innerHTML = '';
-        db.ref(`${branch}/start`).set(true);
+        await setDoc(game, {
+          'start': true
+        });
+        // db.ref(`${branch}/start`).set(true);
       }
     }
 
@@ -231,7 +233,7 @@
       }
     }
 
-    db.ref(branch).set({
+    await setDoc(game, {
       'secret': secretKey,
       'client': '|',
       'check': '|',
@@ -242,7 +244,7 @@
     });
     new QRious({
       element: document.getElementById('qrcode-img'),
-      value: `https://cibabingo.web.app/client.html?branch=${branch}&key=${secretKey}`,
+      value: `https://ajkaew.github.io/bingo/client.html?branch=${branch}&key=${secretKey}`,
       size: 400
     });
 
@@ -252,8 +254,9 @@
       document.getElementById('qrcode').style.display = 'block';
     }
 
-    db.ref(`${branch}/client`).on('value', snapshot => {
-      let msg = snapshot.val().split('|');
+    onSnapshot(game, async doc => {
+      const data = doc.data();
+      let msg = data.client.split('|');
       if (start == 0) {
         if (msg[0] != '' && client.indexOf(msg[0]) < 0) {
           clearInterval(serverStartCountdown);
@@ -283,18 +286,18 @@
           bingoClients.push(bingoClient);
           if (client.length >= playerMax) {
             time = 0;
-            serverStartFunction();
+            await serverStartFunction();
           }
         }
       }
-    });
-
-    db.ref(`${branch}/check`).on('value', snapshot => {
-      let msg = snapshot.val().split('|');
+      msg = data.check.split('|');
       if (start == 1) {
         if (checkClient(msg[0], msg[1])) {
           responsiveVoice.speak('บิงโก้', 'Thai Female');
-          db.ref(`${branch}/BINGO`).set(msg[0]);
+          await setDoc(game, {
+            'BINGO': msg[0]
+          });
+          // db.ref(`${branch}/BINGO`).set(msg[0]);
           document.getElementById('nlast').innerHTML = msg[0];
           stopFunction();
         }
