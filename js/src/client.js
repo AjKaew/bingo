@@ -211,13 +211,15 @@ onSnapshot(game, async doc => {
       }
       document.getElementById('checkNumber').innerHTML = showNumberCheck;
       const msg = data.BINGO;
-      if (playername == msg) {
-        document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
+      if(msg != '') {
+        if (playername == msg) {
+          document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
+        }
+        else {
+          document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${msg} is the winner.</span>`;
+        }
+        start = 2;
       }
-      else {
-        document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${msg} is the winner.</span>`;
-      }
-      start = 2;
     }
   }
   else {
