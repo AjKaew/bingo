@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=mtzOTIKY"></script>
+  <script src="js/qrious.min.js"></script>
+  <title>CIBA Bingo</title>
+
+  <style>
+    body {
+      text-align: center;
+      font-size: 18px;
+    }
+
+    #displays,
+    #qrcode {
+      display: none;
+      text-align: center;
+    }
+
+    #qrcode img {
+      margin: 80px auto 0;
+    }
+
+    #nplayer,
+    #countdown {
+      font-size: 30px;
+    }
+
+    #text30px {
+      font-size: 30px;
+    }
+
+    #nlast {
+      font-size: 250px;
+    }
+
+    #logo {
+      height: 77px;
+    }
+
+    #offline {
+      color: #c0c0c0;
+    }
+
+    #online {
+      color: #0f0;
+    }
+  </style>
+</head>
+
+<body>
+  <p id="status_connect">
+    <span id="offline">Offline</span>
+  </p>
+  <p>
+    <img id="logo" src="img/CIBA.png">
+  </p>
+  <p>
+    <span id="nplayer">0 Player</span>
+    <span id="countdown"></span>
+  <div id="displays">
+    <p>
+    <div id="nlast"></div>
+    </p>
+    <div id="checkNumber"></div>
+  </div>
+  </p>
+  <div id="qrcode">
+    <p>Scan QR Code</p>
+    <canvas id="qrcode-img"></canvas>
+  </div>
+
+  <script src="/__/firebase/8.6.8/firebase-app.js"></script>
+  <script src="/__/firebase/8.6.8/firebase-database.js"></script>
+  <script src="/__/firebase/init.js"></script>
+  <script>
+    const wait = 20;
+    const playerMax = 120;
+    const timespeed = 5000;
+    const range = 50;
+    const secretKey = Math.round(Math.random() * 1e15);
+    const branch = new URLSearchParams(location.search).get('branch');
+
+    let db = firebase.database();
+    let time = wait;
+    let start = 0;
+    let client = [];
+    let bingoClients = [];
+    let bingoNumbers = [];
+    let serverStartCountdown;
+    let serverStartBingo;
+
+    function stopFunction() {
+      start = 2;
+      clearInterval(serverStartBingo);
+    }
+
+    function startFunction() {
+      if (start == 1 && time == 0 && bingoNumbers.length < range) {
+        let numrandom;
+        while (true) {
+          numrandom = Math.floor((Math.random() * range) + 1);
+          if (bingoNumbers.indexOf(numrandom) < 0) {
+            responsiveVoice.speak(`${numrandom}`, 'Thai Female');
+            bingoNumbers.push(numrandom);
+            break;
+          }
+        }
+        db.ref(`${branch}/pop`).set(bingoNumbers);
+
+        let numberRandom = '';
+        for (let i = 0; i < bingoNumbers.length; i++) {
+          if (i == (bingoNumbers.length - 1)) {
+            document.getElementById('nlast').innerHTML = bingoNumbers[i];
+          }
+          numberRandom += (bingoNumbers[i] + ((i + 1) % 10 == 0 ? '<br>' : '&nbsp;'));
+        }
+        document.getElementById('checkNumber').innerHTML = numberRandom;
+      }
+      if (bingoNumbers.length == range) {
+        stopFunction();
+      }
+    }
+
+    function serverStartFunction() {
+      if (time > 0) {
+        if (client.length > 0) {
+          document.getElementById('countdown').innerHTML = `( wait ${time} sec. )`;
+          db.ref(`${branch}/time`).set(time);
+          time--;
+        }
+      }
+      else {
+        start = 1;
+        clearInterval(serverStartCountdown);
+        serverStartBingo = setInterval(startFunction, timespeed);
+        document.getElementById('qrcode').style.display = 'none';
+        document.getElementById('countdown').innerHTML = '';
+        db.ref(`${branch}/start`).set(true);
+      }
+    }
+
+    function checkClient(id, msgStr) {
+      let index_client = client.indexOf(id);
+      if (index_client != -1) {
+        let msgs = msgStr.split(',');
+        let arrCheck = bingoClients[index_client];
+        let countCheck = 0;
+
+        for (let i = 0; i < 5; i++) {
+          countCheck = 0;
+          for (let j = 0; j < 5; j++) {
+            if (i == 2 && j == 2) countCheck++;
+            else {
+              for (let bingo_check = 0; bingo_check < msgs.length; bingo_check++) {
+                if (parseInt(msgs[bingo_check]) == parseInt(arrCheck[i][j])) {
+                  countCheck++;
+                }
+              }
+              if (countCheck == 5) {
+                return true;
+              }
+            }
+          }
+        }
+
+        for (let i = 0; i < 5; i++) {
+          countCheck = 0;
+          for (let j = 0; j < 5; j++) {
+            if (i == 2 && j == 2) countCheck++;
+            else {
+              for (let bingo_check = 0; bingo_check < msgs.length; bingo_check++) {
+                if (parseInt(msgs[bingo_check]) == parseInt(arrCheck[j][i])) {
+                  countCheck++;
+                }
+                if (countCheck == 5) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+
+        countCheck = 0;
+        for (let i = 0; i < 5; i++) {
+          if (i == 2) countCheck++;
+          else {
+            for (let bingo_check = 0; bingo_check < msgs.length; bingo_check++) {
+              if (parseInt(msgs[bingo_check]) == parseInt(arrCheck[i][i])) {
+                countCheck++;
+              }
+              if (countCheck == 5) {
+                return true;
+              }
+            }
+          }
+        }
+
+        countCheck = 0;
+        for (let i = 0; i < 5; i++) {
+          if (i == 2) countCheck++;
+          else {
+            for (let bingo_check = 0; bingo_check < msgs.length; bingo_check++) {
+              if (parseInt(msgs[bingo_check]) == parseInt(arrCheck[i][4 - i])) {
+                countCheck++;
+              }
+              if (countCheck == 5) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    db.ref(branch).set({
+      'secret': secretKey,
+      'client': '|',
+      'check': '|',
+      'start': false,
+      'BINGO': '',
+      'pop': '',
+      'time': time
+    });
+    new QRious({
+      element: document.getElementById('qrcode-img'),
+      value: `https://cibabingo.web.app/client.html?branch=${branch}&key=${secretKey}`,
+      size: 400
+    });
+
+    document.getElementById('status_connect')
+      .innerHTML = '<span id="online">Online</span>';
+    if (start == 0) {
+      document.getElementById('qrcode').style.display = 'block';
+    }
+
+    db.ref(`${branch}/client`).on('value', snapshot => {
+      let msg = snapshot.val().split('|');
+      if (start == 0) {
+        if (msg[0] != '' && client.indexOf(msg[0]) < 0) {
+          clearInterval(serverStartCountdown);
+          time = wait;
+          serverStartFunction();
+          serverStartCountdown = setInterval(serverStartFunction, 1000);
+          client.push(msg[0]);
+          document.getElementById('displays').style.display = 'block';
+          document.getElementById('nplayer')
+            .innerHTML = `${client.length} Player` + (client.length > 1 ? 's' : '');
+
+          let arr_client = msg[1].split(',');
+          let arr = [];
+          let bingoClient = [];
+          for (let i = 0; i < arr_client.length; i++) {
+            if ((i + 1) % 5 == 0) {
+              bingoClient.push(arr);
+            }
+            if (i % 5 == 0) {
+              arr = [];
+              arr.push(arr_client[i]);
+            }
+            else {
+              arr.push(arr_client[i]);
+            }
+          }
+          bingoClients.push(bingoClient);
+          if (client.length >= playerMax) {
+            time = 0;
+            serverStartFunction();
+          }
+        }
+      }
+    });
+
+    db.ref(`${branch}/check`).on('value', snapshot => {
+      let msg = snapshot.val().split('|');
+      if (start == 1) {
+        if (checkClient(msg[0], msg[1])) {
+          responsiveVoice.speak('บิงโก้', 'Thai Female');
+          db.ref(`${branch}/BINGO`).set(msg[0]);
+          document.getElementById('nlast').innerHTML = msg[0];
+          stopFunction();
+        }
+      }
+    });
+
+    // responsiveVoice.speak("hello world");
+  </script>
+</body>
+
+</html>
