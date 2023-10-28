@@ -133,6 +133,7 @@ async function checkBingo(numberBingo) {
 onSnapshot(game, async doc => {
   const data = doc.data();
   console.log(data.clients);
+  console.log(start);
   if (key == data.secret) {
     if(!playername) {
       if(start == 0) {
@@ -150,11 +151,10 @@ onSnapshot(game, async doc => {
     }
     if(start == 0) {
       bingoPlayer = generateNumbers();
-      console.log(bingoPlayer);
       data.clients.push(bingoPlayer)
-      // await setDoc(game, {
-      //   'clients': data.clients
-      // }, {merge: true});
+      await setDoc(game, {
+        'clients': data.clients
+      }, {merge: true});
 
       let htmlText = '';
       for (let i = 0; i < bingoGenerate.length; i++) {
