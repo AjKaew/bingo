@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://code.responsivevoice.org/responsivevoice.js?key=mtzOTIKY"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore-compat.js"></script>
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=DMU5go3z"></script>
   <script src="js/qrious.min.js"></script>
-  <title>CIBA Bingo</title>
-
+  <title>IS Bingo</title>
   <style>
     body {
       text-align: center;
@@ -51,13 +51,12 @@
     }
   </style>
 </head>
-
 <body>
   <p id="status_connect">
     <span id="offline">Offline</span>
   </p>
   <p>
-    <img id="logo" src="img/CIBA.png">
+    <img id="logo" src="img/logo.jpg">
   </p>
   <p>
     <span id="nplayer">0 Player</span>
@@ -73,13 +72,28 @@
     <p>Scan QR Code</p>
     <canvas id="qrcode-img"></canvas>
   </div>
-
-  <script src="/__/firebase/8.6.8/firebase-app.js"></script>
-  <script src="/__/firebase/8.6.8/firebase-database.js"></script>
-  <script src="/__/firebase/init.js"></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
+      authDomain: "is-bingo.firebaseapp.com",
+      projectId: "is-bingo",
+      storageBucket: "is-bingo.appspot.com",
+      messagingSenderId: "760850828545",
+      appId: "1:760850828545:web:fd731405f3891823cd1f00"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+  </script>
   <script>
     const wait = 20;
-    const playerMax = 120;
+    const playerMax = 100;
     const timespeed = 5000;
     const range = 50;
     const secretKey = Math.round(Math.random() * 1e15);
@@ -105,12 +119,12 @@
         while (true) {
           numrandom = Math.floor((Math.random() * range) + 1);
           if (bingoNumbers.indexOf(numrandom) < 0) {
-            responsiveVoice.speak(`${numrandom}`, 'Thai Female');
+            responsiveVoice.speak(`${numrandom}`);
             bingoNumbers.push(numrandom);
             break;
           }
         }
-        db.ref(`${branch}/pop`).set(bingoNumbers);
+        db.ref(`game/${branch}/pop`).set(bingoNumbers);
 
         let numberRandom = '';
         for (let i = 0; i < bingoNumbers.length; i++) {
@@ -286,9 +300,6 @@
         }
       }
     });
-
-    // responsiveVoice.speak("hello world");
   </script>
 </body>
-
 </html>
