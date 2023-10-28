@@ -186,7 +186,7 @@ onSnapshot(game, async doc => {
       serverStartFunction();
       serverStartCountdown = setInterval(serverStartFunction, 1000);
       for(let i = client.length; i < data.clients.length; i++) {
-        const msg = data.client.split('|');
+        const msg = data.clients[i].split('|');
         const arr = msg[1].split(',');
         const bingoClient = [];
         client.push(msg[0]);
