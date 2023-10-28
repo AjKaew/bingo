@@ -39,7 +39,7 @@ async function startFunction() {
     while (true) {
       numrandom = Math.floor((Math.random() * range) + 1);
       if (bingoNumbers.indexOf(numrandom) < 0) {
-        responsiveVoice.speak(`${numrandom}`, 'Thai Female');
+        responsiveVoice.speak(`${numrandom}`, 'Thai Female', {pitch: 2, rate: 1.5});
         bingoNumbers.push(numrandom);
         break;
       }
@@ -47,7 +47,6 @@ async function startFunction() {
     await setDoc(game, {
       'pop': bingoNumbers
     });
-    // db.ref(`game/${branch}/pop`).set(bingoNumbers);
 
     let numberRandom = '';
     for (let i = 0; i < bingoNumbers.length; i++) {
@@ -70,8 +69,6 @@ async function serverStartFunction() {
       await setDoc(game, {
         'time': time--
       });
-      // db.ref(`${branch}/time`).set(time);
-      // time--;
     }
   }
   else {
@@ -83,7 +80,6 @@ async function serverStartFunction() {
     await setDoc(game, {
       'start': true
     });
-    // db.ref(`${branch}/start`).set(true);
   }
 }
 
@@ -220,11 +216,10 @@ onSnapshot(game, async doc => {
   msg = data.check.split('|');
   if (start == 1) {
     if (checkClient(msg[0], msg[1])) {
-      responsiveVoice.speak('บิงโก้', 'Thai Female');
+      responsiveVoice.speak('บิงโก้', 'Thai Female', {pitch: 2, rate: 1.5});
       await setDoc(game, {
         'BINGO': msg[0]
       });
-      // db.ref(`${branch}/BINGO`).set(msg[0]);
       document.getElementById('nlast').innerHTML = msg[0];
       stopFunction();
     }
