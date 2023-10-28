@@ -131,8 +131,6 @@ async function checkBingo(numberBingo) {
 
 onSnapshot(game, async doc => {
   const data = doc.data();
-  console.log(data.clients);
-  console.log(start);
   if (key == data.secret) {
     if(!playername) {
       if(start == 0) {
@@ -211,6 +209,7 @@ onSnapshot(game, async doc => {
       }
       document.getElementById('checkNumber').innerHTML = showNumberCheck;
       const msg = data.BINGO;
+      console.log(msg);
       if(msg != '') {
         if (playername == msg) {
           document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
