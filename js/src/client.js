@@ -147,75 +147,73 @@ onSnapshot(game, async doc => {
         close();
       }
     }
-    else {
-      if(start == 0) {
-        bingoPlayer = generateNumbers();
-        await setDoc(game, {
-          'clients': data.clients.push(bingoPlayer)
-        });
+    if(start == 0) {
+      bingoPlayer = generateNumbers();
+      await setDoc(game, {
+        'clients': data.clients.push(bingoPlayer)
+      });
 
-        let htmlText = '';
-        for (let i = 0; i < bingoGenerate.length; i++) {
-          if (i % 5 == 0) {
-            htmlText += '<tr>';
-          }
-          if (i == 12) {
-            htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
-          }
-          else {
-            htmlText += `<td id="${bingoGenerate[i]}" onClick="checkBingo('${bingoGenerate[i]}')">${bingoGenerate[i]}</td>`;
-          }
-          if ((i + 1) % 5 == 0) {
-            htmlText += '</tr>';
-          }
+      let htmlText = '';
+      for (let i = 0; i < bingoGenerate.length; i++) {
+        if (i % 5 == 0) {
+          htmlText += '<tr>';
         }
-        document.getElementById('bingo_card').innerHTML = htmlText;
-      }
-      if (data.start) {
-        start = 1;
-        document.getElementById('bingo_card').style.display = 'table';
-        document.getElementById('checkNumber').innerHTML = '';
-      }
-      else {
-        document.getElementById('checkNumber').innerHTML = `Wait ${data.time} sec.`;
-      }
-      if (start == 1) {
-        bingoNumbers = data.pop;
-        let showNumberCheck = '';
-        for (let i = 0; i < bingoNumbers.length; i++) {
-          if ((i + 1) % 10 === 0) {
-            if (i == 0) {
-              showNumberCheck += bingoNumbers[i];
-            }
-            else if (i == (bingoNumbers.length - 1)) {
-              showNumberCheck += ` , <span id="numberSize">${bingoNumbers[i]}</span><br>`;
-            }
-            else {
-              showNumberCheck += ` , ${bingoNumbers[i]}<br>`;
-            }
-          }
-          else {
-            if (i == 0) {
-              showNumberCheck += bingoNumbers[i];
-            }
-            else if (i == (bingoNumbers.length - 1)) {
-              showNumberCheck += ' , <span id="numberSize">' + bingoNumbers[i] + '</span>';
-            }
-            else {
-              showNumberCheck += ' , ' + bingoNumbers[i];
-            }
-          }
-        }
-        document.getElementById('checkNumber').innerHTML = showNumberCheck;
-        const msg = data.BINGO;
-        if (playername == msg) {
-          document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
+        if (i == 12) {
+          htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
         }
         else {
-          document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${msg} is the winner.</span>`;
+          htmlText += `<td id="${bingoGenerate[i]}" onClick="checkBingo('${bingoGenerate[i]}')">${bingoGenerate[i]}</td>`;
         }
-        start = 2;
+        if ((i + 1) % 5 == 0) {
+          htmlText += '</tr>';
+        }
       }
+      document.getElementById('bingo_card').innerHTML = htmlText;
+    }
+    if (data.start) {
+      start = 1;
+      document.getElementById('bingo_card').style.display = 'table';
+      document.getElementById('checkNumber').innerHTML = '';
+    }
+    else {
+      document.getElementById('checkNumber').innerHTML = `Wait ${data.time} sec.`;
+    }
+    if (start == 1) {
+      bingoNumbers = data.pop;
+      let showNumberCheck = '';
+      for (let i = 0; i < bingoNumbers.length; i++) {
+        if ((i + 1) % 10 === 0) {
+          if (i == 0) {
+            showNumberCheck += bingoNumbers[i];
+          }
+          else if (i == (bingoNumbers.length - 1)) {
+            showNumberCheck += ` , <span id="numberSize">${bingoNumbers[i]}</span><br>`;
+          }
+          else {
+            showNumberCheck += ` , ${bingoNumbers[i]}<br>`;
+          }
+        }
+        else {
+          if (i == 0) {
+            showNumberCheck += bingoNumbers[i];
+          }
+          else if (i == (bingoNumbers.length - 1)) {
+            showNumberCheck += ' , <span id="numberSize">' + bingoNumbers[i] + '</span>';
+          }
+          else {
+            showNumberCheck += ' , ' + bingoNumbers[i];
+          }
+        }
+      }
+      document.getElementById('checkNumber').innerHTML = showNumberCheck;
+      const msg = data.BINGO;
+      if (playername == msg) {
+        document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
+      }
+      else {
+        document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${msg} is the winner.</span>`;
+      }
+      start = 2;
     }
   }
   else {
