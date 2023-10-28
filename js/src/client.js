@@ -40,7 +40,7 @@ function generateNumbers() {
   }
 
   for (let i = 0; i < bingoGenerate.length; i+=5) {
-    bingoCheck.push(arr.slice(i, i+5));
+    bingoCheck.push(bingoGenerate.slice(i, i+5));
   }
   return `${playername}|${bingoGenerate}`;
 }
