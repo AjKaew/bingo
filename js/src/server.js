@@ -39,7 +39,7 @@ async function startFunction() {
     while (true) {
       numrandom = Math.floor((Math.random() * range) + 1);
       if (bingoNumbers.indexOf(numrandom) < 0) {
-        responsiveVoice.speak(`${numrandom}`);
+        responsiveVoice.speak(`${numrandom}`, 'Thai Female');
         bingoNumbers.push(numrandom);
         break;
       }
