@@ -164,7 +164,7 @@ if(bingoGenerate.length == 0) {
       newClients.push(generateNumbers(newClients.length));
       transaction.update(game, { clients: newClients });
     });
-    console.log("Transaction successfully committed!");
+    // console.log("Transaction successfully committed!");
   } catch (e) {
     console.log("Transaction failed: ", e);
     alert("มีบางอย่างผิดพลาด กรุณาลองใหม่");
