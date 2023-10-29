@@ -131,7 +131,7 @@ async function checkBingo(numberBingo) {
   }
 }
 
-const docSnap = await getDoc(docRef);
+const docSnap = await getDoc(game);
 const data = docSnap.data();
 
 if (key != data.secret) {
