@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, updateDoc, getDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, updateDoc, getDoc, onSnapshot, runTransaction } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
@@ -156,10 +156,23 @@ if(!playername) {
   }
 }
 if(bingoGenerate.length == 0) {
-  data.clients.push(generateNumbers(data.clients.length));
-  await updateDoc(game, {
-    'clients': data.clients
-  });
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const sfDoc = await transaction.get(game);
+      const newClients = sfDoc.data().clients;
+      newClients.push(generateNumbers(newClients.length));
+      transaction.update(sfDocRef, { clients: newClients });
+    });
+    console.log("Transaction successfully committed!");
+  } catch (e) {
+    console.log("Transaction failed: ", e);
+  }
+
+  // data.clients.push(generateNumbers(data.clients.length));
+  // await updateDoc(game, {
+  //   'clients': data.clients
+  // });
   let htmlText = '';
   for (let i = 0; i < bingoGenerate.length; i++) {
     if (i % 5 == 0) {
