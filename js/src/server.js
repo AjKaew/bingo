@@ -54,18 +54,16 @@ async function startFunction() {
         document.getElementById('nlast').innerHTML = bingoNumbers[i];
       }
       // numberRandom += (bingoNumbers[i] + ((i + 1) % 10 == 0 ? '<br>' : '&nbsp;'));
-      for (let i = 0; i < bingoNumbers.length; i++) {
-        if (i == 0) {
-          numberRandom += '<br>';
-        }
-        else if(i % 10 == 0) {
-          numberRandom += ' ,<br>';
-        }
-        else {
-          numberRandom += ' , ';
-        }
-        numberRandom += bingoNumbers[i];
+      if (i == 0) {
+        numberRandom += '<br>';
       }
+      else if(i % 10 == 0) {
+        numberRandom += ' ,<br>';
+      }
+      else {
+        numberRandom += ' , ';
+      }
+      numberRandom += bingoNumbers[i];
     }
     document.getElementById('checkNumber').innerHTML = numberRandom;
   }
