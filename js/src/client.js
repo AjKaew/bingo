@@ -151,10 +151,8 @@ onSnapshot(game, async doc => {
     if(bingoGenerate.length == 0) {
       try {
         await runTransaction(db, async (transaction) => {
-          const sfDoc = await transaction.get(game);
-          const newClients = sfDoc.data().clients;
-          newClients.push(generateNumbers(newClients.length));
-          transaction.update(game, 'clients', newClients);
+          data.clients.push(generateNumbers(newClients.length));
+          transaction.update(game, 'clients', data.clients);
           console.log('in trans');
         });
         console.log('trans ok');
