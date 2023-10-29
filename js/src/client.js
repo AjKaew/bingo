@@ -149,24 +149,11 @@ onSnapshot(game, async doc => {
       }
     }
     if(bingoGenerate.length == 0) {
-      try {
-        await runTransaction(db, async (transaction) => {
-          data.clients.push(generateNumbers(newClients.length));
-          transaction.update(game, 'clients', data.clients);
-          console.log('in new trans');
-        });
-        console.log('trans ok');
-      }
-      catch (e) {
-        console.error(e);
-        alert('You are offline.');
-        history.back();
-      }
-      // data.clients.push(generateNumbers());
-      // await setDoc(game, {
-      //   'clients': data.clients
-      // }, {merge: true});
-      console.log('cont');
+      data.clients.push(generateNumbers(data.clients.length));
+      await setDoc(game, {
+        'clients': data.clients
+      }, {merge: true});
+      
       let htmlText = '';
       for (let i = 0; i < bingoGenerate.length; i++) {
         if (i % 5 == 0) {
