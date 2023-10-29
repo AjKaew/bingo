@@ -53,7 +53,19 @@ async function startFunction() {
       if (i == (bingoNumbers.length - 1)) {
         document.getElementById('nlast').innerHTML = bingoNumbers[i];
       }
-      numberRandom += (bingoNumbers[i] + ((i + 1) % 10 == 0 ? '<br>' : '&nbsp;'));
+      // numberRandom += (bingoNumbers[i] + ((i + 1) % 10 == 0 ? '<br>' : '&nbsp;'));
+      for (let i = 0; i < bingoNumbers.length; i++) {
+        if (i == 0) {
+          numberRandom += '<br>';
+        }
+        else if(i % 10 == 0) {
+          numberRandom += ' ,<br>';
+        }
+        else {
+          numberRandom += ' , ';
+        }
+        numberRandom += bingoNumbers[i];
+      }
     }
     document.getElementById('checkNumber').innerHTML = numberRandom;
   }
@@ -207,11 +219,11 @@ onSnapshot(game, async doc => {
   const msg = data.check.split('|');
   if (start == 1) {
     if (checkClient(msg[0], msg[1])) {
-      responsiveVoice.speak('bingo', 'UK English Female', {rate: 1.5, volumn: 2});
+      responsiveVoice.speak('bing goal', 'UK English Female');
       await setDoc(game, {
         'BINGO': msg[0]
       }, {merge: true});
-      document.getElementById('nlast').innerHTML = msg[0];
+      document.getElementById('nlast').innerHTML = msg[0].split('~')[1];
       stopFunction();
     }
   }

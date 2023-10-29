@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, setDoc, onSnapshot, runTransaction } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
@@ -15,7 +15,8 @@ const params = new URLSearchParams(location.search);
 const branch = params.get('branch');
 const key = params.get('key');
 const app = initializeApp(firebaseConfig);
-const game = doc(getFirestore(app), 'game', branch);
+const db = getFirestore(app);
+const game = doc(db, 'game', branch);
 
 let playername;
 let start = 0;
@@ -24,7 +25,7 @@ let clickNumbers = [];
 let bingoGenerate = [];
 let bingoCheck = [];
 
-function generateNumbers() {
+function generateNumbers(order) {
   while (true) {
     let numrandom = Math.floor((Math.random() * range) + 1);
     if (bingoGenerate.indexOf(numrandom) < 0) {
@@ -41,6 +42,7 @@ function generateNumbers() {
   for (let i = 0; i < bingoGenerate.length; i+=5) {
     bingoCheck.push(bingoGenerate.slice(i, i+5));
   }
+  playername = `${order}~${playername}`;
   return `${playername}|${bingoGenerate}`;
 }
 
@@ -147,10 +149,22 @@ onSnapshot(game, async doc => {
       }
     }
     if(bingoGenerate.length == 0) {
-      data.clients.push(generateNumbers());
-      await setDoc(game, {
-        'clients': data.clients
-      }, {merge: true});
+      try {
+        await runTransaction(db, async (transaction) => {
+          const sfDoc = await transaction.get(game);
+          const newClients = sfDoc.data().clients;
+          newClients.push(generateNumbers(newClients.length));
+          transaction.update(game, { clients: newClients });
+        });
+      }
+      catch (e) {
+        alert('You are offline.');
+        history.back();
+      }
+      // data.clients.push(generateNumbers());
+      // await setDoc(game, {
+      //   'clients': data.clients
+      // }, {merge: true});
 
       let htmlText = '';
       for (let i = 0; i < bingoGenerate.length; i++) {
@@ -184,7 +198,15 @@ onSnapshot(game, async doc => {
       bingoNumbers = data.pop;
       let showNumberCheck = '';
       for (let i = 0; i < bingoNumbers.length; i++) {
-        showNumberCheck += i % 10 == 0 ? '<br>' : ' , ';
+        if (i == 0) {
+          showNumberCheck += '<br>';
+        }
+        else if(i % 10 == 0) {
+          showNumberCheck += ' ,<br>';
+        }
+        else {
+          showNumberCheck += ' , ';
+        }
         if (i == (bingoNumbers.length - 1)) {
           showNumberCheck += `<span id="numberSize">${bingoNumbers[i]}</span>`;
         }
@@ -199,7 +221,8 @@ onSnapshot(game, async doc => {
           document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
         }
         else {
-          document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${msg} is the winner.</span>`;
+          const winner = msg.split('~')[1];
+          document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${winner} is the winner.</span>`;
         }
         start = 2;
       }
