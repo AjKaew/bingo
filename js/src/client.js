@@ -167,6 +167,8 @@ if(bingoGenerate.length == 0) {
     console.log("Transaction successfully committed!");
   } catch (e) {
     console.log("Transaction failed: ", e);
+    alert("มีบางอย่างผิดพลาด กรุณาลองใหม่");
+    history.back();
   }
 
   // data.clients.push(generateNumbers(data.clients.length));
