@@ -162,7 +162,7 @@ if(bingoGenerate.length == 0) {
       const sfDoc = await transaction.get(game);
       const newClients = sfDoc.data().clients;
       newClients.push(generateNumbers(newClients.length));
-      transaction.update(sfDocRef, { clients: newClients });
+      transaction.update(game, { clients: newClients });
     });
     console.log("Transaction successfully committed!");
   } catch (e) {
