@@ -156,6 +156,7 @@ onSnapshot(game, async doc => {
           newClients.push(generateNumbers(newClients.length));
           transaction.update(game, { clients: newClients });
         });
+        console.log('trans ok');
       }
       catch (e) {
         alert('You are offline.');
@@ -165,7 +166,7 @@ onSnapshot(game, async doc => {
       // await setDoc(game, {
       //   'clients': data.clients
       // }, {merge: true});
-
+      console.log('cont');
       let htmlText = '';
       for (let i = 0; i < bingoGenerate.length; i++) {
         if (i % 5 == 0) {
