@@ -169,7 +169,10 @@ onSnapshot(game, async doc => {
       }
       document.getElementById('bingo_card').innerHTML = htmlText;
       for(let num of document.querySelectorAll('.clickable')) {
-        num.addEventListener('click', ()=>{checkBingo(num.id)});
+        num.addEventListener('click', ()=>{
+          console.log(num.id);
+          checkBingo(num.id);
+        });
       }
     }
     if (data.start) {
@@ -209,7 +212,6 @@ onSnapshot(game, async doc => {
       }
       document.getElementById('checkNumber').innerHTML = showNumberCheck;
       const msg = data.BINGO;
-      console.log(msg);
       if(msg != '') {
         if (playername == msg) {
           document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
