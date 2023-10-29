@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
@@ -44,9 +44,9 @@ async function startFunction() {
         break;
       }
     }
-    await setDoc(game, {
+    await updateDoc(game, {
       'pop': bingoNumbers
-    }, {merge: true});
+    });
 
     let numberRandom = '';
     for (let i = 0; i < bingoNumbers.length; i++) {
@@ -76,9 +76,9 @@ async function serverStartFunction() {
   if (time > 0) {
     if (client.length > 0) {
       document.getElementById('countdown').innerHTML = `( wait ${time} sec. )`;
-      await setDoc(game, {
+      await updateDoc(game, {
         'time': time--
-      }, {merge: true});
+      });
     }
   }
   else {
@@ -87,9 +87,9 @@ async function serverStartFunction() {
     serverStartBingo = setInterval(startFunction, timespeed);
     document.getElementById('qrcode').style.display = 'none';
     document.getElementById('countdown').innerHTML = '';
-    await setDoc(game, {
+    await updateDoc(game, {
       'start': true
-    }, {merge: true});
+    });
   }
 }
 
@@ -218,9 +218,9 @@ onSnapshot(game, async doc => {
   if (start == 1) {
     if (checkClient(msg[0], msg[1])) {
       responsiveVoice.speak('bing goal', 'UK English Female');
-      await setDoc(game, {
+      await updateDoc(game, {
         'BINGO': msg[0]
-      }, {merge: true});
+      });
       document.getElementById('nlast').innerHTML = msg[0].split('~')[1];
       stopFunction();
     }

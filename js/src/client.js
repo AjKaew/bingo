@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, onSnapshot, runTransaction } from "firebase/firestore";
+import { getFirestore, doc, updateDoc, getDoc, onSnapshot } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
@@ -124,102 +124,104 @@ async function checkBingo(numberBingo) {
     clickNumbers.push(numberBingo);
     document.getElementById(numberBingo).style.backgroundColor = 'red';
     if (checkClientBingo()) {
-      await setDoc(game, {
+      await updateDoc(game, {
         'check': `${playername}|${clickNumbers}`
-      }, {merge: true});
+      });
     }
+  }
+}
+
+const docSnap = await getDoc(docRef);
+const data = docSnap.data();
+
+if (key != data.secret) {
+  document.getElementById('bingo_card').style.display = 'none';
+  document.getElementById('checkNumber').style.display = 'none';
+  window.alert('เกมรอบนี้สิ้นสุดแล้ว กรุณาสแกน QR เพื่อเข้าเล่นใหม่');
+  history.back();
+}
+
+if(!playername) {
+  if(start == 0) {
+    do {
+      playername = prompt('Please enter your name', '');
+    } while(!playername);
+    document.getElementById('status_connect')
+      .innerHTML = '<span id="online">Online</span>';
+    document.getElementById('player_name').innerHTML = playername;
+  }
+  else {
+    window.alert('ขออภัย เกมเริ่มแล้ว กรุณารอรอบถัดไป');
+    history.back();
+  }
+}
+if(bingoGenerate.length == 0) {
+  data.clients.push(generateNumbers(data.clients.length));
+  await updateDoc(game, {
+    'clients': data.clients
+  });
+  let htmlText = '';
+  for (let i = 0; i < bingoGenerate.length; i++) {
+    if (i % 5 == 0) {
+      htmlText += '<tr>';
+    }
+    if (i == 12) {
+      htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
+    }
+    else {
+      htmlText += `<td id="${bingoGenerate[i]}" class="clickable">${bingoGenerate[i]}</td>`;
+    }
+    if ((i + 1) % 5 == 0) {
+      htmlText += '</tr>';
+    }
+  }
+  document.getElementById('bingo_card').innerHTML = htmlText;
+  for(let num of document.querySelectorAll('.clickable')) {
+    num.addEventListener('click', ()=>{checkBingo(num.id);});
   }
 }
 
 onSnapshot(game, async doc => {
   const data = doc.data();
-  if (key == data.secret) {
-    if(!playername) {
-      if(start == 0) {
-        do {
-          playername = prompt('Please enter your name', '');
-        } while(!playername);
-        document.getElementById('status_connect')
-          .innerHTML = '<span id="online">Online</span>';
-        document.getElementById('player_name').innerHTML = playername;
-      }
-      else {
-        window.alert('ขออภัย เกมเริ่มแล้ว กรุณารอรอบถัดไป');
-        history.back();
-      }
-    }
-    if(bingoGenerate.length == 0) {
-      data.clients.push(generateNumbers(data.clients.length));
-      await setDoc(game, {
-        'clients': data.clients
-      }, {merge: true});
-      
-      let htmlText = '';
-      for (let i = 0; i < bingoGenerate.length; i++) {
-        if (i % 5 == 0) {
-          htmlText += '<tr>';
-        }
-        if (i == 12) {
-          htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
-        }
-        else {
-          htmlText += `<td id="${bingoGenerate[i]}" class="clickable">${bingoGenerate[i]}</td>`;
-        }
-        if ((i + 1) % 5 == 0) {
-          htmlText += '</tr>';
-        }
-      }
-      document.getElementById('bingo_card').innerHTML = htmlText;
-      for(let num of document.querySelectorAll('.clickable')) {
-        num.addEventListener('click', ()=>{checkBingo(num.id);});
-      }
-    }
-    if (data.start) {
-      start = 1;
-      document.getElementById('bingo_card').style.display = 'table';
-      document.getElementById('checkNumber').innerHTML = '';
-    }
-    else {
-      document.getElementById('checkNumber').innerHTML = `Wait ${data.time} sec.`;
-    }
-    if (start == 1) {
-      bingoNumbers = data.pop;
-      let showNumberCheck = '';
-      for (let i = 0; i < bingoNumbers.length; i++) {
-        if (i == 0) {
-          showNumberCheck += '<br>';
-        }
-        else if(i % 10 == 0) {
-          showNumberCheck += ' ,<br>';
-        }
-        else {
-          showNumberCheck += ' , ';
-        }
-        if (i == (bingoNumbers.length - 1)) {
-          showNumberCheck += `<span id="numberSize">${bingoNumbers[i]}</span>`;
-        }
-        else {
-          showNumberCheck += bingoNumbers[i];
-        }
-      }
-      document.getElementById('checkNumber').innerHTML = showNumberCheck;
-      const msg = data.BINGO;
-      if(msg != '') {
-        if (playername == msg) {
-          document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
-        }
-        else {
-          const winner = msg.split('~')[1];
-          document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${winner} is the winner.</span>`;
-        }
-        start = 2;
-      }
-    }
+  if (data.start) {
+    start = 1;
+    document.getElementById('bingo_card').style.display = 'table';
+    document.getElementById('checkNumber').innerHTML = '';
   }
   else {
-    document.getElementById('bingo_card').style.display = 'none';
-    document.getElementById('checkNumber').style.display = 'none';
-    window.alert('เกมรอบนี้สิ้นสุดแล้ว กรุณาสแกน QR เพื่อเข้าเล่นใหม่');
-    history.back();
+    document.getElementById('checkNumber').innerHTML = `Wait ${data.time} sec.`;
+  }
+  if (start == 1) {
+    bingoNumbers = data.pop;
+    let showNumberCheck = '';
+    for (let i = 0; i < bingoNumbers.length; i++) {
+      if (i == 0) {
+        showNumberCheck += '<br>';
+      }
+      else if(i % 10 == 0) {
+        showNumberCheck += ' ,<br>';
+      }
+      else {
+        showNumberCheck += ' , ';
+      }
+      if (i == (bingoNumbers.length - 1)) {
+        showNumberCheck += `<span id="numberSize">${bingoNumbers[i]}</span>`;
+      }
+      else {
+        showNumberCheck += bingoNumbers[i];
+      }
+    }
+    document.getElementById('checkNumber').innerHTML = showNumberCheck;
+    const msg = data.BINGO;
+    if(msg != '') {
+      if (playername == msg) {
+        document.getElementById('win').innerHTML = '<span style="color:green;">You BINGO!!!</span>';
+      }
+      else {
+        const winner = msg.split('~')[1];
+        document.getElementById('win').innerHTML = `<span style="color:red;">You LOST!!!, ${winner} is the winner.</span>`;
+      }
+      start = 2;
+    }
   }
 });
