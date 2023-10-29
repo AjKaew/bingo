@@ -207,7 +207,7 @@ onSnapshot(game, async doc => {
   const msg = data.check.split('|');
   if (start == 1) {
     if (checkClient(msg[0], msg[1])) {
-      responsiveVoice.speak('บิงโก้', 'Thai Female');
+      responsiveVoice.speak('บิงโก้', 'Thai Female', {pitch: 1.5});
       await setDoc(game, {
         'BINGO': msg[0]
       }, {merge: true});
