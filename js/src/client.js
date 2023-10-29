@@ -159,6 +159,7 @@ onSnapshot(game, async doc => {
         console.log('trans ok');
       }
       catch (e) {
+        console.error(e);
         alert('You are offline.');
         history.back();
       }
