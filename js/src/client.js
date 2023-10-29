@@ -155,6 +155,7 @@ onSnapshot(game, async doc => {
           const newClients = sfDoc.data().clients;
           newClients.push(generateNumbers(newClients.length));
           transaction.update(game, { clients: newClients });
+          console.log('in trans');
         });
         console.log('trans ok');
       }
