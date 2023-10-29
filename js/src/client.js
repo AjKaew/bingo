@@ -153,7 +153,7 @@ onSnapshot(game, async doc => {
         await runTransaction(db, async (transaction) => {
           data.clients.push(generateNumbers(newClients.length));
           transaction.update(game, 'clients', data.clients);
-          console.log('in trans');
+          console.log('in new trans');
         });
         console.log('trans ok');
       }
