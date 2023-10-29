@@ -169,10 +169,7 @@ onSnapshot(game, async doc => {
       }
       document.getElementById('bingo_card').innerHTML = htmlText;
       for(let num of document.querySelectorAll('.clickable')) {
-        num.addEventListener('click', ()=>{
-          console.log(num.id);
-          checkBingo(num.id);
-        });
+        num.addEventListener('click', ()=>{checkBingo(num.id);});
       }
     }
     if (data.start) {
@@ -187,27 +184,12 @@ onSnapshot(game, async doc => {
       bingoNumbers = data.pop;
       let showNumberCheck = '';
       for (let i = 0; i < bingoNumbers.length; i++) {
-        if ((i + 1) % 10 === 0) {
-          if (i == 0) {
-            showNumberCheck += bingoNumbers[i];
-          }
-          else if (i == (bingoNumbers.length - 1)) {
-            showNumberCheck += ` , <span id="numberSize">${bingoNumbers[i]}</span><br>`;
-          }
-          else {
-            showNumberCheck += ` , ${bingoNumbers[i]}<br>`;
-          }
+        showNumberCheck += i % 10 == 0 ? '<br>' : ' , ';
+        if (i == (bingoNumbers.length - 1)) {
+          showNumberCheck += `<span id="numberSize">${bingoNumbers[i]}</span>`;
         }
         else {
-          if (i == 0) {
-            showNumberCheck += bingoNumbers[i];
-          }
-          else if (i == (bingoNumbers.length - 1)) {
-            showNumberCheck += ' , <span id="numberSize">' + bingoNumbers[i] + '</span>';
-          }
-          else {
-            showNumberCheck += ' , ' + bingoNumbers[i];
-          }
+          showNumberCheck += bingoNumbers[i];
         }
       }
       document.getElementById('checkNumber').innerHTML = showNumberCheck;
