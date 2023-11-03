@@ -181,7 +181,7 @@ if(bingoGenerate.length == 0) {
       htmlText += '<tr>';
     }
     if (i == 12) {
-      htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.jpg" style="text-align:center;vertical-align:middle;"></td>`;
+      htmlText += `<td id="${bingoGenerate[i]}"><img src="img/logo.png" style="text-align:center;vertical-align:middle;"></td>`;
     }
     else {
       htmlText += `<td id="${bingoGenerate[i]}" class="clickable">${bingoGenerate[i]}</td>`;
