@@ -14,7 +14,7 @@ const branch = new URLSearchParams(location.search).get('branch');
 const app = initializeApp(firebaseConfig);
 const game = doc(getFirestore(app), 'game', branch);
 
-const wait = 20;
+const wait = 30;
 const playerMax = 100;
 const timespeed = 5000;
 const range = 50;
