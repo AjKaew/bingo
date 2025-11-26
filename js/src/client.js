@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, doc, updateDoc, getDoc, onSnapshot, runTransaction } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBLmWrBaRcZZdG2e7bOD7MoqoCRirkVZqI",
-  authDomain: "is-bingo.firebaseapp.com",
-  projectId: "is-bingo",
-  storageBucket: "is-bingo.appspot.com",
-  messagingSenderId: "760850828545",
-  appId: "1:760850828545:web:fd731405f3891823cd1f00"
+  apiKey: "AIzaSyAPU6GAK3SIP41zw0ZHKn-ooayCGl_oeME",
+  authDomain: "it-kmitl-bingo.firebaseapp.com",
+  projectId: "it-kmitl-bingo",
+  storageBucket: "it-kmitl-bingo.firebasestorage.app",
+  messagingSenderId: "744803244280",
+  appId: "1:744803244280:web:40ceab0942723ea6d6430d"
 };
 
 const range = 50;
