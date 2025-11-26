@@ -4,7 +4,6 @@ import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "firebase/fires
 const firebaseConfig = {
   apiKey: "AIzaSyAPU6GAK3SIP41zw0ZHKn-ooayCGl_oeME",
   authDomain: "it-kmitl-bingo.firebaseapp.com",
-  databaseURL: "https://it-kmitl-bingo-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "it-kmitl-bingo",
   storageBucket: "it-kmitl-bingo.firebasestorage.app",
   messagingSenderId: "744803244280",
