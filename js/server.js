@@ -7,7 +7,7 @@ const firebaseConfig = {
   projectId: "it-kmitl-bingo",
   storageBucket: "it-kmitl-bingo.firebasestorage.app",
   messagingSenderId: "744803244280",
-  appId: "1:744803244280:web:40ceab0942723ea6d6430d"
+  appId: "1:744803244280:web:0187acf4922115a1d6430d"
 };
 
 const branch = new URLSearchParams(location.search).get('branch');
